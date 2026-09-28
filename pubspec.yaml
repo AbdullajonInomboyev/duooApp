@@ -1,0 +1,59 @@
+name: godostavka_store
+description: GoDostavka - do'kon egasi ilovasi (B2B ulgurji savdo)
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.2
+  dio: ^5.4.0
+  cached_network_image: ^3.3.1
+  shared_preferences: ^2.2.2
+  flutter_secure_storage: ^9.0.0
+  flutter_svg: ^2.0.9
+  package_info_plus: ^5.0.1
+  intl: ^0.19.0
+  # Lokatsiya (GPS)
+  geolocator: ^11.0.0
+  # Xarita (OpenStreetMap - bepul, kalitsiz)
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  # Do'kon rasmini tanlash
+  image_picker: ^1.0.7
+  # Internet holatini kuzatish
+  connectivity_plus: ^5.0.2
+  # Link/APK ochish (yangilash tugmasi uchun)
+  url_launcher: ^6.2.4
+
+dev_dependencies:
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+# Telefon ish stolidagi ikonka (DUOO logo)
+flutter_launcher_icons:
+  android: true
+  ios: true
+  # Logo fayli. Yashil fonli, kvadrat versiya tavsiya etiladi.
+  image_path: "assets/logo/logo_icon.png"
+  # Android adaptiv ikonka (yashil fon + oq logo)
+  adaptive_icon_background: "#009D4D"
+  adaptive_icon_foreground: "assets/logo/logo_icon.png"
+  min_sdk_android: 21
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo/
+    - assets/icons/
+    - assets/images/
+  # Shrift: Plus Jakarta Sans (assets/fonts/ ga qo'shib yoqing)
+  # fonts:
+  #   - family: PlusJakartaSans
+  #     fonts:
+  #       - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+  #       - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+  #         weight: 700
