@@ -77,8 +77,7 @@ class _CategoryBrandsScreenState extends State<CategoryBrandsScreen> {
                         child: Text('Brend topilmadi',
                             style: TextStyle(color: AppColors.onSurfaceVariant)))
                     : ListView.separated(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md),
+                        padding: AppSpacing.scroll(context, top: 0),
                         itemCount: brands.length,
                         separatorBuilder: (_, __) =>
                             const SizedBox(height: AppSpacing.sm),

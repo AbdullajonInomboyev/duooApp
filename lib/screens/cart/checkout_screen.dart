@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../core/format.dart';
-import '../../models/models.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/orders_provider.dart';
 import 'order_success_screen.dart';
 import '../../core/app_dialogs.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,11 +25,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   };
 
   Future<void> _confirm() async {
-    setState(() => _submitting = true);
     final cart = context.read<CartProvider>();
+    if (cart.items.isEmpty) {
+      AppDialogs.info(context, 'Savat bo\'sh. Avval mahsulot qo\'shing.');
+      return;
+    }
+    setState(() => _submitting = true);
     final order = await cart.checkout(paymentType: _payment);
     if (!mounted) return;
     if (order != null) {
+      // Buyurtmalar tarixi yangilansin
+      context.read<OrdersProvider>().loadOrders();
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -207,9 +213,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: _submitting ? null : _confirm,
+                onPressed:
+                    _submitting || cart.items.isEmpty ? null : _confirm,
                 child: _submitting
-                    ? const CircularProgressIndicator()
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2.5, color: AppColors.onPrimary))
                     : const Text('Tasdiqlash'),
               ),
             ],

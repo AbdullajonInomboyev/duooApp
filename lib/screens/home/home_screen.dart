@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
           await _loadBanners();
         },
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: AppSpacing.scroll(context),
           children: [
             GestureDetector(
               onTap: () => Navigator.push(context,

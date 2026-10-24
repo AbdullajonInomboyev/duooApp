@@ -2,16 +2,19 @@ import 'dart:io' show File;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/theme.dart';
 import '../../core/uzbekistan_regions.dart';
 import '../../providers/auth_provider.dart';
 import 'pin_setup_screen.dart';
+import 'location_picker_screen.dart';
+import 'login_screen.dart';
 import '../../core/app_dialogs.dart';
 
 /// Ro'yxatdan o'tish — telefon, ism, do'kon nomi + rasmi, viloyat/tuman,
-/// GPS lokatsiya (xaritada ko'rinadi). Muvaffaqiyatli -> PIN o'rnatish.
+/// sputnik xaritada belgilangan lokatsiya. Muvaffaqiyatli -> PIN o'rnatish.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
   @override
@@ -36,7 +39,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Lokatsiya
   double? _lat;
   double? _lng;
-  bool _locating = false;
 
   List<String> get _districts =>
       _region != null ? (uzRegions[_region] ?? const []) : const [];
@@ -83,42 +85,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // ---------- GPS lokatsiya ----------
-  Future<void> _getLocation() async {
-    setState(() => _locating = true);
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        _snack('GPS o\'chirilgan. Iltimos, joylashuvni yoqing.');
-        setState(() => _locating = false);
-        return;
-      }
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          _snack('Joylashuvga ruxsat berilmadi.');
-          setState(() => _locating = false);
-          return;
-        }
-      }
-      if (permission == LocationPermission.deniedForever) {
-        _snack('Joylashuv ruxsati rad etilgan. Sozlamalardan yoqing.');
-        setState(() => _locating = false);
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      setState(() {
-        // 6 xonaga yaxlitlaymiz (server decimal_places=6 kutadi)
-        _lat = double.parse(pos.latitude.toStringAsFixed(6));
-        _lng = double.parse(pos.longitude.toStringAsFixed(6));
-        _locating = false;
-      });
-    } catch (e) {
-      setState(() => _locating = false);
-      _snack('Joylashuvni aniqlab bo\'lmadi.');
-    }
+  // ---------- Lokatsiya (sputnik xarita) ----------
+  Future<void> _pickOnMap() async {
+    final res = await Navigator.push<Map<String, double>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LocationPickerScreen(initialLat: _lat, initialLng: _lng),
+      ),
+    );
+    if (res == null || !mounted) return;
+    setState(() {
+      // 6 xonaga yaxlitlaymiz (server decimal_places=6 kutadi)
+      _lat = double.parse(res['lat']!.toStringAsFixed(6));
+      _lng = double.parse(res['lng']!.toStringAsFixed(6));
+    });
   }
 
   void _snack(String m) {
@@ -194,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Ro'yxatdan o'tish")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: AppSpacing.scroll(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -315,9 +295,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ElevatedButton(
               onPressed: _submitting ? null : _submit,
               child: _submitting
-                  ? const CircularProgressIndicator(
-                      color: AppColors.onPrimary)
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2.5, color: AppColors.onPrimary))
                   : const Text("Ro'yxatdan o'tish"),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen())),
+                child: const Text(
+                  'Hisobingiz bormi? Kirish',
+                  style: TextStyle(
+                      color: AppColors.primaryDark,
+                      fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
           ],
         ),
@@ -325,55 +321,97 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  /// Lokatsiya bloki: belgilangan bo'lsa kichik sputnik xarita + belgi,
+  /// bo'lmasa "Xaritadan belgilash" tugmasi.
   Widget _buildLocationBlock() {
     final hasLoc = _lat != null && _lng != null;
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppColors.outlineVariant),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Icon(
-                hasLoc ? Icons.check_circle : Icons.location_off_outlined,
-                color: hasLoc ? AppColors.success : AppColors.outline,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  hasLoc
-                      ? 'Joylashuv aniqlandi:\n${_lat!.toStringAsFixed(5)}, ${_lng!.toStringAsFixed(5)}'
-                      : 'Joylashuv hali aniqlanmagan',
-                  style: TextStyle(
-                      color: hasLoc
-                          ? AppColors.onSurface
-                          : AppColors.onSurfaceVariant,
-                      fontSize: 13),
+          if (hasLoc)
+            SizedBox(
+              height: 150,
+              child: IgnorePointer(
+                child: FlutterMap(
+                  // Koordinata o'zgarsa xarita qayta quriladi
+                  key: ValueKey('$_lat,$_lng'),
+                  options: MapOptions(
+                    initialCenter: LatLng(_lat!, _lng!),
+                    initialZoom: 17,
+                    interactionOptions:
+                        const InteractionOptions(flags: InteractiveFlag.none),
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: satelliteTileUrl,
+                      userAgentPackageName: mapUserAgent,
+                      maxNativeZoom: 19,
+                    ),
+                    MarkerLayer(markers: [
+                      Marker(
+                        point: LatLng(_lat!, _lng!),
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.topCenter,
+                        child: const Icon(Icons.location_on,
+                            size: 44,
+                            color: AppColors.primary,
+                            shadows: [
+                              Shadow(color: Color(0x66000000), blurRadius: 6)
+                            ]),
+                      ),
+                    ]),
+                  ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Faqat GPS — do'kon egasi do'konda turib bosadi
-          OutlinedButton.icon(
-            onPressed: _locating ? null : _getLocation,
-            icon: _locating
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.my_location),
-            label: Text(_locating
-                ? 'Aniqlanmoqda...'
-                : (hasLoc ? 'Joylashuvni yangilash' : 'Joylashuvni aniqlash')),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      hasLoc ? Icons.check_circle : Icons.location_off_outlined,
+                      color: hasLoc ? AppColors.success : AppColors.outline,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        hasLoc
+                            ? "Do'kon joyi xaritada belgilandi"
+                            : "Do'kon joyi hali belgilanmagan",
+                        style: TextStyle(
+                            color: hasLoc
+                                ? AppColors.onSurface
+                                : AppColors.onSurfaceVariant,
+                            fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: _pickOnMap,
+                  icon: const Icon(Icons.map_outlined),
+                  label: Text(hasLoc
+                      ? "Joyni o'zgartirish"
+                      : 'Xaritadan belgilash'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

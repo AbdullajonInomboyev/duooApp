@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300">
+  <circle cx="180" cy="150" r="132" fill="#E6F5EC"/>
+  <circle cx="60" cy="70" r="6" fill="#F9A825"/>
+  <circle cx="310" cy="236" r="8" fill="#C9EBD7"/>
+  <!-- Yo'l (nuqtali marshrut) -->
+  <path d="M70 222 C 120 170, 170 250, 228 196 S 290 120, 284 96" fill="none" stroke="#009D4D" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 12"/>
+  <!-- Manzil belgisi (do'kon) -->
+  <path d="M284 40 a26 26 0 0 1 26 26 c0 20 -26 46 -26 46 s-26 -26 -26 -46 a26 26 0 0 1 26 -26 z" fill="#009D4D"/>
+  <circle cx="284" cy="66" r="13" fill="#FFFFFF"/>
+  <path d="M276 68 l8 -8 l8 8 v7 h-16 z" fill="#009D4D"/>
+  <ellipse cx="284" cy="116" rx="16" ry="4" fill="#C9EBD7"/>
+  <!-- Yer soyasi -->
+  <ellipse cx="160" cy="250" rx="118" ry="8" fill="#C9EBD7"/>
+  <!-- Yuk mashinasi -->
+  <rect x="56" y="150" width="140" height="92" rx="10" fill="#009D4D"/>
+  <rect x="56" y="150" width="140" height="16" rx="8" fill="#006D35"/>
+  <!-- Yon tarafdagi logo o'rni -->
+  <rect x="80" y="184" width="64" height="34" rx="8" fill="#FFFFFF" opacity="0.95"/>
+  <path d="M96 210 v-16 l16 -8 l16 8 v16 z" fill="#E6F5EC"/>
+  <path d="M104 210 v-10 h16 v10" fill="#009D4D"/>
+  <!-- Kabina -->
+  <path d="M196 176 h44 a10 10 0 0 1 8 4 l22 28 a10 10 0 0 1 2 6 v20 a8 8 0 0 1 -8 8 h-68 z" fill="#006D35"/>
+  <path d="M206 186 h30 l18 24 h-48 z" fill="#E6F5EC"/>
+  <rect x="262" y="224" width="12" height="8" rx="3" fill="#F9A825"/>
+  <!-- G'ildiraklar -->
+  <circle cx="96" cy="244" r="20" fill="#1A1C1C"/>
+  <circle cx="96" cy="244" r="8" fill="#E0E0E0"/>
+  <circle cx="230" cy="244" r="20" fill="#1A1C1C"/>
+  <circle cx="230" cy="244" r="8" fill="#E0E0E0"/>
+  <!-- Tezlik chiziqlari -->
+  <rect x="18" y="170" width="28" height="5" rx="2.5" fill="#C9EBD7"/>
+  <rect x="26" y="190" width="20" height="5" rx="2.5" fill="#C9EBD7"/>
+  <rect x="12" y="210" width="34" height="5" rx="2.5" fill="#C9EBD7"/>
+  <!-- Tepadagi qutilar -->
+  <rect x="78" y="110" width="44" height="40" rx="5" fill="#F9A825"/>
+  <rect x="94" y="110" width="12" height="16" fill="#FFFFFF" opacity="0.8"/>
+  <rect x="128" y="120" width="38" height="30" rx="5" fill="#FFFFFF"/>
+  <rect x="128" y="120" width="38" height="30" rx="5" fill="none" stroke="#C9EBD7" stroke-width="3"/>
+  <rect x="141" y="120" width="12" height="13" fill="#E6F5EC"/>
+  <!-- Tasdiq belgisi -->
+  <circle cx="176" cy="96" r="20" fill="#FFFFFF"/>
+  <circle cx="176" cy="96" r="15" fill="#F9A825"/>
+  <path d="M169 96 l5 5 l9 -10" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

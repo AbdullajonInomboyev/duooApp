@@ -43,7 +43,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
             )
           : ListView(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: AppSpacing.scroll(context),
               children: [
                 Text('Sizning tanlangan mahsulotlaringiz (${cart.itemCount} ta)',
                     style: const TextStyle(color: AppColors.onSurfaceVariant)),

@@ -57,7 +57,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('PIN kodni tiklash')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: AppSpacing.scroll(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -88,7 +88,11 @@ class _PinResetScreenState extends State<PinResetScreen> {
             ElevatedButton(
               onPressed: _busy ? null : _submit,
               child: _busy
-                  ? const CircularProgressIndicator(color: AppColors.onPrimary)
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2.5, color: AppColors.onPrimary))
                   : const Text('Tasdiqlash'),
             ),
           ],

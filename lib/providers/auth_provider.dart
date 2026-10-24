@@ -94,6 +94,29 @@ class AuthProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
+  /// Hisobni butunlay o'chirish (Google Play talabi).
+  /// Backend: DELETE /auth/me/. Muvaffaqiyatli bo'lsa tokenlar tozalanadi.
+  /// Server bu amalni qo'llamasa (404/405) — false + aniq xabar.
+  Future<bool> deleteAccount() async {
+    _startLoading();
+    try {
+      await _api.dio.delete('/auth/me/');
+      await logout();
+      _stopLoading();
+      return true;
+    } catch (e) {
+      final code = e is DioException ? e.response?.statusCode : null;
+      if (code == 404 || code == 405) {
+        _error = "Hisobni o'chirish so'rovi qabul qilinmadi. "
+            "Iltimos, administrator bilan bog'laning.";
+      } else {
+        _error = _serverMessage(e) ?? friendlyError(e);
+      }
+      _stopLoading();
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     await _api.clearTokens();
     _me = null;

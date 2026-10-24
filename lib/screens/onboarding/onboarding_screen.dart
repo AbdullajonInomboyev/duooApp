@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/theme.dart';
-import '../auth/register_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../auth/auth_choice_screen.dart';
+
+/// SharedPreferences kaliti: onboarding ko'rilganmi.
+const onboardingSeenKey = 'onboarding_seen';
 
 /// Onboarding — 3 sahifali tanishtiruv. Har sahifada rasm + sarlavha + matn.
-/// "O'tkazib yuborish" bilan darhol ro'yxatdan o'tishga o'tadi.
+/// "O'tkazib yuborish" yoki "Boshlash" -> "Hisobingiz bormi?" oynasi.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
   @override
@@ -14,20 +19,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   int _index = 0;
 
-  // Har sahifa: rasm yo'li + sarlavha + matn
+  // Har sahifa: illyustratsiya + sarlavha + matn
   final _pages = const [
     _OnbData(
-      'assets/images/onboarding_1.png',
+      'assets/images/onboarding_1.svg',
       'Xush kelibsiz!',
       "Do'koningiz uchun mahsulotlarni oson buyurtma qiling.",
     ),
     _OnbData(
-      'assets/images/onboarding_2.png',
+      'assets/images/onboarding_2.svg',
       'Eng yaxshi brendlar va ulgurji narxlar bir joyda.',
       'Keng turdagi mahsulotlarni ishonchli yetkazib berish bilan.',
     ),
     _OnbData(
-      'assets/images/onboarding_3.png',
+      'assets/images/onboarding_3.svg',
       'Buyurtmani bering va biz yetkazib beramiz.',
       'Tez, ishonchli va qulay ulgurji xaridlar tizimi.',
     ),
@@ -42,9 +47,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _goToRegister() {
+  /// Onboarding bir marta ko'rsatiladi, keyin "Hisobingiz bormi?" oynasi.
+  Future<void> _goToRegister() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(onboardingSeenKey, true);
+    if (!mounted) return;
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (_) => const RegisterScreen()));
+        context, MaterialPageRoute(builder: (_) => const AuthChoiceScreen()));
   }
 
   @override
@@ -117,23 +126,14 @@ class _OnbPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Rasm — assets/images/onboarding_N.png
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.xl),
-            child: Image.asset(
-              data.image,
-              height: 260,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              // Rasm topilmasa — ikonka (ilova buzilmaydi)
-              errorBuilder: (_, __, ___) => Container(
-                height: 260,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceDim,
-                  borderRadius: BorderRadius.circular(AppRadius.xl),
-                ),
-                child: const Icon(Icons.storefront_outlined,
-                    size: 80, color: AppColors.outline),
+          // Illyustratsiya — assets/images/onboarding_N.svg (vektor, har
+          // qanday ekranda tiniq)
+          Flexible(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 300),
+              child: AspectRatio(
+                aspectRatio: 360 / 300,
+                child: SvgPicture.asset(data.image, fit: BoxFit.contain),
               ),
             ),
           ),

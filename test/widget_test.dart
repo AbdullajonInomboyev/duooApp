@@ -1,30 +1,32 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:godostavka_store/main.dart';
+import 'package:godostavka_store/core/format.dart';
+import 'package:godostavka_store/core/theme.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('narx so\'m bilan formatlanadi', () {
+    final text = formatPrice(216000);
+    expect(text.endsWith("so'm"), isTrue);
+    expect(text.replaceAll(RegExp(r'\s'), ''), "216000so'm");
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  test('buyurtma statusi rangi', () {
+    expect(StatusStyle.of('delivered').fg, AppColors.success);
+    expect(StatusStyle.of('cancelled').fg, AppColors.error);
+    expect(StatusStyle.of('new').fg, AppColors.warning);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('scroll padding pastki tizim panelini hisobga oladi',
+      (tester) async {
+    late EdgeInsets padding;
+    await tester.pumpWidget(MediaQuery(
+      data: const MediaQueryData(padding: EdgeInsets.only(bottom: 24)),
+      child: Builder(builder: (context) {
+        padding = AppSpacing.scroll(context);
+        return const SizedBox();
+      }),
+    ));
+    expect(padding.bottom, AppSpacing.md + 24);
+    expect(padding.top, AppSpacing.md);
   });
 }

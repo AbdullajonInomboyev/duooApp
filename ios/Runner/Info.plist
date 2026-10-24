@@ -67,6 +67,19 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<!-- Lokatsiya (GPS) -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>https</string>
+	</array>
+	<!-- Server hozircha IP manzilda, HTTP orqali ishlaydi. ATS istisnolari
+	     IP uchun ishlamaydi, shuning uchun umumiy ruxsat. HTTPS ga
+	     o'tilgach olib tashlang. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Do'kon manzilini aniqlash uchun joylashuv kerak</string>
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../core/app_dialogs.dart';
 import '../../services/api_service.dart';
@@ -49,7 +48,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Fikr va takliflar')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: AppSpacing.scroll(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

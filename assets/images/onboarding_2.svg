@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300">
+  <circle cx="180" cy="150" r="132" fill="#E6F5EC"/>
+  <circle cx="58" cy="78" r="9" fill="#C9EBD7"/>
+  <circle cx="306" cy="232" r="7" fill="#F9A825"/>
+  <circle cx="300" cy="66" r="5" fill="#C9EBD7"/>
+  <ellipse cx="180" cy="262" rx="130" ry="8" fill="#C9EBD7"/>
+  <!-- Pastki qutilar -->
+  <rect x="70" y="190" width="72" height="68" rx="6" fill="#009D4D"/>
+  <rect x="70" y="190" width="72" height="14" rx="4" fill="#006D35"/>
+  <rect x="98" y="190" width="16" height="30" fill="#C9EBD7"/>
+  <rect x="146" y="190" width="72" height="68" rx="6" fill="#F9A825"/>
+  <rect x="146" y="190" width="72" height="14" rx="4" fill="#E08E0B"/>
+  <rect x="174" y="190" width="16" height="30" fill="#FFFFFF" opacity="0.8"/>
+  <rect x="222" y="190" width="72" height="68" rx="6" fill="#006D35"/>
+  <rect x="222" y="190" width="72" height="14" rx="4" fill="#004F26"/>
+  <rect x="250" y="190" width="16" height="30" fill="#C9EBD7"/>
+  <!-- O'rta qator -->
+  <rect x="108" y="124" width="72" height="66" rx="6" fill="#FFFFFF"/>
+  <rect x="108" y="124" width="72" height="66" rx="6" fill="none" stroke="#C9EBD7" stroke-width="3"/>
+  <rect x="136" y="124" width="16" height="28" fill="#E6F5EC"/>
+  <circle cx="144" cy="168" r="10" fill="#009D4D"/>
+  <rect x="184" y="124" width="72" height="66" rx="6" fill="#009D4D"/>
+  <rect x="184" y="124" width="72" height="14" rx="4" fill="#006D35"/>
+  <rect x="212" y="124" width="16" height="28" fill="#C9EBD7"/>
+  <!-- Tepa quti -->
+  <rect x="146" y="60" width="72" height="64" rx="6" fill="#F9A825"/>
+  <rect x="146" y="60" width="72" height="14" rx="4" fill="#E08E0B"/>
+  <rect x="174" y="60" width="16" height="28" fill="#FFFFFF" opacity="0.8"/>
+  <!-- Rasmiy brend belgisi -->
+  <circle cx="232" cy="64" r="16" fill="#FFFFFF"/>
+  <circle cx="232" cy="64" r="12" fill="#009D4D"/>
+  <path d="M226 64 l4 4 l8 -8" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Narx yorlig'i (ulgurji) -->
+  <g transform="rotate(-18 76 120)">
+    <path d="M44 98 h52 l18 22 l-18 22 h-52 a8 8 0 0 1 -8 -8 v-28 a8 8 0 0 1 8 -8 z" fill="#FFFFFF"/>
+    <path d="M44 98 h52 l18 22 l-18 22 h-52 a8 8 0 0 1 -8 -8 v-28 a8 8 0 0 1 8 -8 z" fill="none" stroke="#009D4D" stroke-width="3"/>
+    <circle cx="98" cy="120" r="4" fill="#009D4D"/>
+    <!-- foiz belgisi -->
+    <circle cx="56" cy="111" r="5" fill="none" stroke="#006D35" stroke-width="3"/>
+    <circle cx="76" cy="129" r="5" fill="none" stroke="#006D35" stroke-width="3"/>
+    <path d="M78 108 l-24 24" stroke="#006D35" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <!-- Yulduzchalar -->
+  <path d="M300 128 l3 7 l7 1 l-5 5 l1 7 l-6 -3 l-6 3 l1 -7 l-5 -5 l7 -1 z" fill="#F9A825"/>
+  <path d="M62 196 l2 5 l5 1 l-4 3 l1 5 l-4 -2 l-4 2 l1 -5 l-4 -3 l5 -1 z" fill="#009D4D"/>
+</svg>

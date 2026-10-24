@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../home/main_shell.dart';
 import 'pin_widgets.dart';
 import 'pin_reset_screen.dart';
+import 'auth_choice_screen.dart';
 
 /// PIN kiritish — ilova qayta ochilganda (kirish).
 /// To'g'ri PIN -> ichkariga. 5 marta xato -> chiqib ketadi.
@@ -48,13 +49,19 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
     } else {
       _attempts++;
       if (_attempts >= 5) {
-        await context.read<AuthProvider>().logout();
+        if (!mounted) return;
+        final auth = context.read<AuthProvider>();
+        await auth.logout();
         await PinService.instance.clearPin();
         if (mounted) {
-          Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false);
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const AuthChoiceScreen()),
+              (r) => false);
         }
         return;
       }
+      if (!mounted) return;
       setState(() {
         _error = 'Noto\'g\'ri PIN. Qolgan urinishlar: ${5 - _attempts}';
         _current = '';

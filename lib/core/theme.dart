@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// DUOO dizayn tizimi.
 /// Uch rang qoidasi: OQ fon, YASHIL brend (#009D4D), QORA matn.
@@ -44,6 +45,47 @@ class AppSpacing {
   static const md = 16.0;   // gutter
   static const lg = 24.0;
   static const xl = 32.0;
+
+  /// Scroll ro'yxatlar uchun padding. Ilova edge-to-edge bo'lgani uchun
+  /// pastdagi tizim paneli balandligi qo'shiladi — oxirgi tugma/karta
+  /// panel ostida qolib ketmaydi. Ekranda o'z bottomNavigationBar'i bo'lsa
+  /// [safeBottom] = false (u panelni o'zi hisobga oladi).
+  static EdgeInsets scroll(BuildContext context,
+      {double horizontal = md,
+      double top = md,
+      double bottom = md,
+      bool safeBottom = true}) {
+    final inset = safeBottom ? MediaQuery.paddingOf(context).bottom : 0.0;
+    return EdgeInsets.fromLTRB(horizontal, top, horizontal, bottom + inset);
+  }
+}
+
+/// Tizim panellari (status bar, pastki navigatsiya) uslubi.
+class AppTheme {
+  /// Oq fonli ekranlar: panellar shaffof, ikonkalar qora.
+  static const lightOverlay = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness: Brightness.light, // iOS
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
+    // Android panel ostiga kulrang parda qo'ymasin
+    systemNavigationBarContrastEnforced: false,
+    systemStatusBarContrastEnforced: false,
+  );
+
+  /// Yashil fonli ekranlar (splash): ikonkalar oq.
+  static const darkOverlay = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark, // iOS
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.light,
+    systemNavigationBarContrastEnforced: false,
+    systemStatusBarContrastEnforced: false,
+  );
 }
 
 /// Ilovaning umumiy mavzusi.
@@ -63,8 +105,13 @@ ThemeData buildAppTheme() {
       background: AppColors.background,
       error: AppColors.error,
     ),
+    // AppBar foni sahifa foni bilan bir xil: scroll qilinganda ham
+    // kulrang/yashil tus olmaydi, status bar ostida alohida tasma yo'q.
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.background,
+      surfaceTintColor: Colors.transparent,
+      scrolledUnderElevation: 0,
+      systemOverlayStyle: AppTheme.lightOverlay,
       elevation: 0,
       centerTitle: true,
       foregroundColor: AppColors.onSurface,
@@ -75,6 +122,37 @@ ThemeData buildAppTheme() {
         fontWeight: FontWeight.w700,
       ),
       iconTheme: IconThemeData(color: AppColors.onSurface),
+    ),
+    // Pastki menyu: oq fon tizim paneli ostigacha cho'ziladi,
+    // ikonkalar esa paneldan yuqorida turadi (NavigationBar o'zi hisoblaydi).
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      indicatorColor: AppColors.primary,
+      iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? AppColors.onPrimary
+                : AppColors.onSurfaceVariant,
+          )),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
+            fontFamily: fontFamily,
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+            color: states.contains(WidgetState.selected)
+                ? AppColors.primaryDark
+                : AppColors.onSurfaceVariant,
+          )),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+    ),
+    dialogTheme: const DialogThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
     ),
     cardTheme: CardThemeData(
       color: AppColors.surface,

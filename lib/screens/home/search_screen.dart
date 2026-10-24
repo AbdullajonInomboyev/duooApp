@@ -102,7 +102,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           style:
                               TextStyle(color: AppColors.onSurfaceVariant)))
                   : ListView.separated(
-                      padding: const EdgeInsets.all(AppSpacing.md),
+                      padding: AppSpacing.scroll(context),
                       itemCount: _results.length,
                       separatorBuilder: (_, __) =>
                           const SizedBox(height: AppSpacing.sm),
