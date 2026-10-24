@@ -1,4 +1,4 @@
-package com.example.godostavka_store
+package uz.duoo.app
 
 import io.flutter.embedding.android.FlutterActivity
 

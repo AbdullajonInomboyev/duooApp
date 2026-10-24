@@ -5,9 +5,11 @@ import '../../services/pin_service.dart';
 import '../../providers/auth_provider.dart';
 import '../home/main_shell.dart';
 import 'pin_widgets.dart';
+import 'pin_reset_screen.dart';
 
 /// PIN kiritish — ilova qayta ochilganda (kirish).
-/// To'g'ri PIN -> ichkariga. 5 marta xato -> chiqib ketadi (xavfsizlik).
+/// To'g'ri PIN -> ichkariga. 5 marta xato -> chiqib ketadi.
+/// "PIN unutdingizmi?" -> telefon+parol bilan tiklash.
 class PinLoginScreen extends StatefulWidget {
   const PinLoginScreen({super.key});
   @override
@@ -46,7 +48,6 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
     } else {
       _attempts++;
       if (_attempts >= 5) {
-        // Xavfsizlik: 5 marta xato -> chiqarib yuboramiz
         await context.read<AuthProvider>().logout();
         await PinService.instance.clearPin();
         if (mounted) {
@@ -72,7 +73,17 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
           error: _error,
           onKey: _onKey,
           onDelete: _onDelete,
-          // "PIN unutdim" hozircha ishlamaydi (SMS keyin ulanadi)
+          // PIN unutilganda telefon+parol bilan tiklash
+          footer: TextButton(
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PinResetScreen())),
+            child: const Text(
+              'PIN kodni unutdingizmi?',
+              style: TextStyle(
+                  color: AppColors.primary, fontWeight: FontWeight.w600),
+            ),
+          ),
         ),
       ),
     );

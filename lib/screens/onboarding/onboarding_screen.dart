@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../auth/register_screen.dart';
 
-/// Onboarding — 3 sahifali tanishtiruv (dizayndagi kabi).
-/// "O'tkazib yuborish" bilan darhol kirishga o'tadi.
+/// Onboarding — 3 sahifali tanishtiruv. Har sahifada rasm + sarlavha + matn.
+/// "O'tkazib yuborish" bilan darhol ro'yxatdan o'tishga o'tadi.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
   @override
@@ -14,13 +14,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   int _index = 0;
 
+  // Har sahifa: rasm yo'li + sarlavha + matn
   final _pages = const [
-    _OnbData('Xush kelibsiz!',
-        "Do'koningiz uchun mahsulotlarni oson buyurtma qiling."),
-    _OnbData('Eng yaxshi brendlar va ulgurji narxlar bir joyda.',
-        'Keng turdagi mahsulotlarni ishonchli yetkazib berish bilan.'),
-    _OnbData('Buyurtmani bering va biz yetkazib beramiz.',
-        'Tez, ishonchli va qulay ulgurji xaridlar tizimi.'),
+    _OnbData(
+      'assets/images/onboarding_1.png',
+      'Xush kelibsiz!',
+      "Do'koningiz uchun mahsulotlarni oson buyurtma qiling.",
+    ),
+    _OnbData(
+      'assets/images/onboarding_2.png',
+      'Eng yaxshi brendlar va ulgurji narxlar bir joyda.',
+      'Keng turdagi mahsulotlarni ishonchli yetkazib berish bilan.',
+    ),
+    _OnbData(
+      'assets/images/onboarding_3.png',
+      'Buyurtmani bering va biz yetkazib beramiz.',
+      'Tez, ishonchli va qulay ulgurji xaridlar tizimi.',
+    ),
   ];
 
   void _next() {
@@ -59,7 +69,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 itemBuilder: (_, i) => _OnbPage(data: _pages[i]),
               ),
             ),
-            // Nuqtalar (indikator)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_pages.length, (i) {
@@ -80,7 +89,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               padding: const EdgeInsets.all(AppSpacing.md),
               child: ElevatedButton(
                 onPressed: _next,
-                child: Text(_index == _pages.length - 1 ? 'Boshlash' : 'Keyingisi'),
+                child:
+                    Text(_index == _pages.length - 1 ? 'Boshlash' : 'Keyingisi'),
               ),
             ),
           ],
@@ -91,9 +101,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class _OnbData {
+  final String image;
   final String title;
   final String subtitle;
-  const _OnbData(this.title, this.subtitle);
+  const _OnbData(this.image, this.title, this.subtitle);
 }
 
 class _OnbPage extends StatelessWidget {
@@ -106,15 +117,25 @@ class _OnbPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Rasm joyi (assets/images/onboarding_N.png)
-          Container(
-            height: 220,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDim,
-              borderRadius: BorderRadius.circular(AppRadius.xl),
+          // Rasm — assets/images/onboarding_N.png
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            child: Image.asset(
+              data.image,
+              height: 260,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              // Rasm topilmasa — ikonka (ilova buzilmaydi)
+              errorBuilder: (_, __, ___) => Container(
+                height: 260,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceDim,
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                ),
+                child: const Icon(Icons.storefront_outlined,
+                    size: 80, color: AppColors.outline),
+              ),
             ),
-            child: const Icon(Icons.storefront_outlined,
-                size: 80, color: AppColors.outline),
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(data.title,

@@ -8,13 +8,13 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Kamera (do'kon rasmi uchun) -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- APK yangilanishini o'rnatish (server orqali yangilash) -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    
 
     <application
         android:label="DUOO"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

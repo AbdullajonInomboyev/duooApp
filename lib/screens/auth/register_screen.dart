@@ -129,8 +129,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _submit() async {
+    // Maydonlarni oldindan tekshiramiz — serverga bormay, darrov aniq aytamiz
+    final phone = _phone.text.trim();
+    final digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (!phone.startsWith('+998') || digits.length != 12) {
+      AppDialogs.error(context,
+          'Telefon raqam noto\'g\'ri. Format: +998 XX XXX XX XX (12 ta raqam).');
+      return;
+    }
+    if (_fullName.text.trim().isEmpty) {
+      AppDialogs.error(context, 'Ism va familiyani kiriting.');
+      return;
+    }
+    if (_shopName.text.trim().isEmpty) {
+      AppDialogs.error(context, 'Do\'kon nomini kiriting.');
+      return;
+    }
+    if (_password.text.length < 4) {
+      AppDialogs.error(context, 'Parol kamida 4 ta belgidan iborat bo\'lsin.');
+      return;
+    }
     if (_region == null || _district == null) {
-      _snack('Viloyat va tumanni tanlang');
+      AppDialogs.error(context, 'Viloyat va tumanni tanlang.');
       return;
     }
     setState(() => _submitting = true);

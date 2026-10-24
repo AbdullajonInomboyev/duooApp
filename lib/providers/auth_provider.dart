@@ -18,7 +18,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> checkLoggedIn() async => _api.hasToken();
 
   Future<bool> login(String phone, String password) async {
-    _setLoading(true);
+    _startLoading();
     try {
       final res = await _api.dio.post('/auth/login/', data: {
         'phone': phone,
@@ -26,11 +26,16 @@ class AuthProvider extends ChangeNotifier {
       });
       await _api.saveTokens(res.data['access'], res.data['refresh']);
       await fetchMe();
-      _setLoading(false);
+      _stopLoading();
       return true;
     } catch (e) {
-      _error = 'Telefon yoki parol xato';
-      _setLoading(false);
+      // Login xatosi: server aniq sabab bersa o'shani, bo'lmasa tarmoq/umumiy
+      if (e is DioException && e.response?.statusCode == 401) {
+        _error = 'Telefon raqam yoki parol noto\'g\'ri.';
+      } else {
+        _error = _serverMessage(e) ?? friendlyError(e);
+      }
+      _stopLoading();
       return false;
     }
   }
@@ -39,11 +44,9 @@ class AuthProvider extends ChangeNotifier {
     required Map<String, dynamic> data,
     XFile? image,
   }) async {
-    _setLoading(true);
-    _error = null;
+    _startLoading();
     try {
       // Rasm bo'lsa multipart (FormData), bo'lmasa oddiy JSON.
-      // XFile.readAsBytes() web va mobilda ishlaydi.
       final dynamic payload;
       if (image != null) {
         final bytes = await image.readAsBytes();
@@ -57,33 +60,30 @@ class AuthProvider extends ChangeNotifier {
       final res = await _api.dio.post('/auth/register/', data: payload);
       await _api.saveTokens(res.data['access'], res.data['refresh']);
       await fetchMe();
-      _setLoading(false);
+      _stopLoading();
       return true;
     } catch (e) {
-      // Serverdan aniq sabab kelsa o'shani, bo'lmasa xato turini aniqlaymiz
-      String msg;
-      if (e is DioException && e.response?.data is Map) {
-        final data = e.response!.data as Map;
-        if (data.isNotEmpty) {
-          final val = data.values.first;
-          msg = val is List ? val.first.toString() : val.toString();
-        } else {
-          msg = friendlyError(e);
-        }
-      } else if (e is DioException && e.response?.statusCode == 413) {
-        msg = 'Do\'kon rasmi juda katta. Kichikroq rasm tanlang.';
-      } else if (e is DioException) {
-        // DEBUG: aniq sababni ko'rsatamiz
-        msg = 'Xato turi: ${e.type}\n'
-            'Kod: ${e.response?.statusCode ?? "yo\'q"}\n'
-            'Xabar: ${e.message ?? friendlyError(e)}';
-      } else {
-        msg = friendlyError(e);
-      }
-      _error = msg;
-      _setLoading(false);
+      // Aniq sabab: serverdan kelgan xabar (telefon takror, format xato...)
+      // bo'lmasa — tarmoq/rasm/umumiy xato turini aniqlaymiz.
+      _error = _serverMessage(e) ?? friendlyError(e);
+      _stopLoading();
       return false;
     }
+  }
+
+  /// Serverdan kelgan aniq xato matnini oladi (masalan
+  /// "Bu telefon raqam ro'yxatdan o'tgan"). Yo'q bo'lsa null.
+  String? _serverMessage(Object e) {
+    if (e is DioException && e.response?.data is Map) {
+      final data = e.response!.data as Map;
+      if (data.isNotEmpty) {
+        // Maxsus: "detail" yoki birinchi maydon xatosi
+        final val = data['detail'] ?? data.values.first;
+        final text = val is List ? val.first.toString() : val.toString();
+        if (text.trim().isNotEmpty) return text.trim();
+      }
+    }
+    return null;
   }
 
   Future<void> fetchMe() async {
@@ -100,9 +100,16 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _setLoading(bool v) {
-    _loading = v;
+  // Yuklash boshlanганда xatoni tozalaymiz
+  void _startLoading() {
+    _loading = true;
     _error = null;
+    notifyListeners();
+  }
+
+  // Yuklash tugаganда xatoni SAQLAB qolamiz (null qilmaymiz!)
+  void _stopLoading() {
+    _loading = false;
     notifyListeners();
   }
 }

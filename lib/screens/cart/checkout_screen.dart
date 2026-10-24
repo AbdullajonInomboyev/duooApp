@@ -19,10 +19,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String _payment = 'cash';
   bool _submitting = false;
 
+  // Faqat naqd pul (nasiya va o'tkazma olib tashlandi)
   final _payments = const {
     'cash': 'Naqd pul',
-    'credit': 'Nasiya',
-    'transfer': "O'tkazma",
   };
 
   Future<void> _confirm() async {
