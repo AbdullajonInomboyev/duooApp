@@ -1,7 +1,7 @@
 name: godostavka_store
 description: GoDostavka - do'kon egasi ilovasi (B2B ulgurji savdo)
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.2+2
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -30,20 +30,24 @@ dependencies:
   url_launcher: ^6.2.4
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   flutter_lints: ^3.0.0
   flutter_launcher_icons: ^0.13.1
   change_app_package_name: ^1.5.0
 
-# Telefon ish stolidagi ikonka (DUOO logo)
+# Telefon ish stolidagi ikonka (DUOO logo).
+# Qayta yaratish: dart run flutter_launcher_icons
+# - app_icon_ios.png: yashil fon + oq belgi (iOS va eski Android)
+# - app_icon_foreground.png: oq belgi, adaptiv ikonka xavfsiz zonasida (56%)
 flutter_launcher_icons:
   android: true
   ios: true
-  # Logo fayli. Yashil fonli, kvadrat versiya tavsiya etiladi.
-  image_path: "assets/logo/logo_icon.png"
-  # Android adaptiv ikonka (yashil fon + oq logo)
+  image_path: "assets/logo/app_icon_ios.png"
+  remove_alpha_ios: true
   adaptive_icon_background: "#009D4D"
-  adaptive_icon_foreground: "assets/logo/logo_icon.png"
-  min_sdk_android: 21
+  adaptive_icon_foreground: "assets/logo/app_icon_foreground.png"
+  min_sdk_android: 24
 
 flutter:
   uses-material-design: true

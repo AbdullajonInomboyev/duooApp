@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/theme.dart';
@@ -9,7 +10,9 @@ import '../providers/auth_provider.dart';
 import '../providers/connectivity_provider.dart';
 import '../widgets/no_internet_screen.dart';
 import 'onboarding/onboarding_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'auth/pin_login_screen.dart';
+import 'auth/auth_choice_screen.dart';
 import 'home/main_shell.dart';
 
 /// Boshlang'ich ekran: internet -> majburiy yangilash -> kirish holati.
@@ -62,7 +65,6 @@ class _SplashScreenState extends State<SplashScreen>
     if (updateInfo != null && mounted) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (_) => _ForceUpdateScreen(
-          apkUrl: updateInfo['apk_url'] ?? '',
           storeUrl: updateInfo['store_url'] ?? '',
           notes: updateInfo['release_notes'] ?? '',
         ),
@@ -71,6 +73,7 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     // 2. Kirish holati
+    if (!mounted) return;
     final auth = context.read<AuthProvider>();
     final loggedIn = await auth.checkLoggedIn();
     if (!mounted) return;
@@ -83,21 +86,26 @@ class _SplashScreenState extends State<SplashScreen>
       } else {
         // Token bor lekin PIN yo'q (kamdan-kam holat) -> ichkariga
         await auth.fetchMe();
+        if (!mounted) return;
         _go(const MainShell());
       }
     } else {
-      // Birinchi marta -> onboarding -> ro'yxatdan o'tish
-      _go(const OnboardingScreen());
+      // Birinchi marta -> onboarding; keyingi safar -> "Hisobingiz bormi?"
+      final prefs = await SharedPreferences.getInstance();
+      final seen = prefs.getBool(onboardingSeenKey) ?? false;
+      if (!mounted) return;
+      _go(seen ? const AuthChoiceScreen() : const OnboardingScreen());
     }
   }
 
   Future<Map<String, dynamic>?> _checkForceUpdate() async {
     try {
+      final version = await AppConfig.appVersion();
       final res = await ApiService.instance.dio.get(
         '/core/app-version/',
         queryParameters: {
           'platform': AppConfig.platform,
-          'current': AppConfig.appVersion,
+          'current': version,
         },
       );
       if (res.data['force_update'] == true) {
@@ -136,7 +144,10 @@ class _SplashScreenState extends State<SplashScreen>
     if (_noInternet) {
       return NoInternetScreen(onRetry: _retry, retrying: _retrying);
     }
-    return Scaffold(
+    // Yashil fonda status bar ikonkalari oq bo'lsin
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: AppTheme.darkOverlay,
+      child: Scaffold(
       backgroundColor: AppColors.primary,
       body: Center(
         child: Column(
@@ -160,26 +171,34 @@ class _SplashScreenState extends State<SplashScreen>
           ],
         ),
       ),
+      ),
     );
   }
 }
 
 /// Majburiy yangilash — ilovaga kirgizmaydi.
-/// "Yangilash" bosilganda APK yoki do'kon havolasini ochadi.
+/// "Yangilash" faqat do'kon (Play Market / App Store) sahifasini ochadi.
+/// APK havolasi ishlatilmaydi: Google Play siyosati ilovaning o'zini
+/// Play'dan tashqari yangilashini taqiqlaydi.
 class _ForceUpdateScreen extends StatelessWidget {
-  final String apkUrl;
   final String storeUrl;
   final String notes;
   const _ForceUpdateScreen({
-    this.apkUrl = '',
     this.storeUrl = '',
     this.notes = '',
   });
 
   Future<void> _update(BuildContext context) async {
-    // APK bo'lsa o'shani, bo'lmasa do'kon havolasini ochamiz
-    final target = apkUrl.isNotEmpty ? apkUrl : storeUrl;
-    if (target.isEmpty) return;
+    // Android'da avval Play Market ilovasining o'zi, bo'lmasa veb sahifa
+    if (AppConfig.platform == 'android') {
+      final market =
+          Uri.parse('market://details?id=${AppConfig.androidPackage}');
+      if (await canLaunchUrl(market)) {
+        await launchUrl(market, mode: LaunchMode.externalApplication);
+        return;
+      }
+    }
+    final target = storeUrl.isNotEmpty ? storeUrl : AppConfig.playStoreUrl;
     final uri = Uri.parse(target);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);

@@ -26,7 +26,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Katalog')),
       body: ListView.builder(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: AppSpacing.scroll(context),
         itemCount: categories.length,
         itemBuilder: (_, i) {
           final c = categories[i];

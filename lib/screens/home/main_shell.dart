@@ -40,11 +40,14 @@ class _MainShellState extends State<MainShell> {
     final cartCount = context.watch<CartProvider>().itemCount;
     return Scaffold(
       body: IndexedStack(index: _index, children: _screens),
-      bottomNavigationBar: NavigationBar(
+      // Yupqa chiziq menyuni kontentdan ajratadi
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.outlineVariant)),
+        ),
+        child: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.primary,
         destinations: [
           const NavigationDestination(
               icon: Icon(Icons.home_outlined),
@@ -71,6 +74,7 @@ class _MainShellState extends State<MainShell> {
               selectedIcon: Icon(Icons.person),
               label: 'Profil'),
         ],
+        ),
       ),
     );
   }

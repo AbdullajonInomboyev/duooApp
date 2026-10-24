@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
+import '../../core/app_dialogs.dart';
 import '../../core/format.dart';
 import '../../providers/orders_provider.dart';
 import 'receipt_screen.dart';
@@ -29,24 +30,50 @@ class _OrdersScreenState extends State<OrdersScreen> {
       body: op.loading
           ? const Center(child: CircularProgressIndicator())
           : op.orders.isEmpty
-              ? const Center(child: Text('Hozircha buyurtmalar yo\'q'))
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(op.error ?? 'Hozircha buyurtmalar yo\'q',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color: AppColors.onSurfaceVariant)),
+                        if (op.error != null) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          OutlinedButton(
+                            onPressed: op.loadOrders,
+                            child: const Text('Qayta urinish'),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                )
               : RefreshIndicator(
                   onRefresh: () => op.loadOrders(),
                   child: ListView.builder(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    padding: AppSpacing.scroll(context),
                     itemCount: op.orders.length,
                     itemBuilder: (_, i) {
                       final o = op.orders[i];
                       final style = StatusStyle.of(o.status);
                       return GestureDetector(
                         onTap: () async {
-                          final detail = await op.orderDetail(o.id);
-                          if (context.mounted) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        ReceiptScreen(order: detail)));
+                          try {
+                            final detail = await op.orderDetail(o.id);
+                            if (context.mounted) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          ReceiptScreen(order: detail)));
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              AppDialogs.error(context, friendlyError(e));
+                            }
                           }
                         },
                         child: Container(

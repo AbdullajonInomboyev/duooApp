@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme.dart';
 import '../../core/format.dart';
+import '../../core/app_dialogs.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
-import '../auth/../onboarding/onboarding_screen.dart';
+import '../auth/auth_choice_screen.dart';
 import '../../services/pin_service.dart';
 import 'feedback_screen.dart';
 
@@ -18,6 +19,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _adminPhone = '';
+  String _privacyUrl = '';
 
   @override
   void initState() {
@@ -29,7 +31,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final res = await ApiService.instance.dio.get('/core/config/');
       if (mounted) {
-        setState(() => _adminPhone = res.data['admin_phone'] ?? '');
+        setState(() {
+          _adminPhone = res.data['admin_phone'] ?? '';
+          _privacyUrl = res.data['privacy_policy_url'] ?? '';
+        });
       }
     } catch (_) {}
   }
@@ -37,6 +42,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _call(String phone) async {
     final uri = Uri.parse('tel:$phone');
     if (await canLaunchUrl(uri)) await launchUrl(uri);
+  }
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  /// Hisobni o'chirish — tasdiqlash oynasi, keyin serverga so'rov.
+  Future<void> _confirmDelete() async {
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.xl)),
+        title: const Text("Hisobni o'chirish"),
+        content: const Text(
+            "Hisobingiz, do'kon ma'lumotlari va buyurtmalar tarixi butunlay "
+            "o'chiriladi. Bu amalni qaytarib bo'lmaydi."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Bekor qilish'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text("O'chirish",
+                style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (yes != true || !mounted) return;
+    final auth = context.read<AuthProvider>();
+    final ok = await auth.deleteAccount();
+    await PinService.instance.clearPin();
+    if (!mounted) return;
+    if (ok) {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const AuthChoiceScreen()),
+          (r) => false);
+    } else {
+      AppDialogs.error(context, auth.error ?? "Hisobni o'chirib bo'lmadi");
+    }
   }
 
   @override
@@ -48,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: AppSpacing.scroll(context),
         children: [
           // Do'kon karta
           Container(
@@ -120,6 +171,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () => _call(_adminPhone),
             ),
 
+          // Maxfiylik siyosati (server sozlamasida havola bo'lsa)
+          if (_privacyUrl.isNotEmpty)
+            _tile(
+              icon: Icons.privacy_tip_outlined,
+              title: 'Maxfiylik siyosati',
+              subtitle: "Ma'lumotlaringiz qanday ishlatiladi",
+              onTap: () => _openUrl(_privacyUrl),
+            ),
+
           const SizedBox(height: AppSpacing.md),
           // Chiqish
           Container(
@@ -138,10 +198,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const OnboardingScreen()),
+                          builder: (_) => const AuthChoiceScreen()),
                       (r) => false);
                 }
               },
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          // Hisobni o'chirish (Google Play talabi)
+          Center(
+            child: TextButton(
+              onPressed: auth.loading ? null : _confirmDelete,
+              child: const Text("Hisobni o'chirish",
+                  style: TextStyle(color: AppColors.onSurfaceVariant)),
             ),
           ),
         ],

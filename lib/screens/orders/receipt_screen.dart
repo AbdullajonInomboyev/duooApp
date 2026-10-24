@@ -18,7 +18,7 @@ class ReceiptScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: AppSpacing.scroll(context),
         children: [
           Container(
             padding: const EdgeInsets.all(AppSpacing.lg),

@@ -6,9 +6,8 @@
     <!-- Lokatsiya (GPS) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- Kamera (do'kon rasmi uchun) -->
-    <uses-permission android:name="android.permission.CAMERA" />
-    
+    <!-- Kamera ruxsati kerak emas: image_picker tizim kamerasini ochadi.
+         Ruxsat e'lon qilinsa, Play'da qo'shimcha izoh talab qilinadi. -->
 
     <application
         android:label="DUOO"
@@ -36,7 +35,21 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <!-- Android 11+: url_launcher tashqi ilovalarni ko'ra olishi uchun
+         (qo'ng'iroq, Play Market, brauzer) — aks holda tugmalar ishlamaydi -->
     <queries>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="market" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
